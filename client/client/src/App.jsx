@@ -27,6 +27,8 @@ function App() {
     googleMapsApiKey: GOOGLE_MAPS_API_KEY,
   });
 
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+
   const nextStep = () => setStep((s) => s + 1);
   const prevStep = () => setStep((s) => s - 1);
 
@@ -43,7 +45,7 @@ function App() {
     };
 
     try {
-      const res = await fetch('http://localhost:5000/chat', {
+      const res = await fetch(`${API_BASE_URL}/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(payload)
@@ -81,7 +83,7 @@ function App() {
     setFinalized(true);
     // Call backend for walking distances
     try {
-      const res = await fetch('http://localhost:5000/walking_distances', {
+      const res = await fetch(`${API_BASE_URL}/walking_distances`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ places })
@@ -96,7 +98,7 @@ function App() {
   // Call backend for route summary
   const getRouteSummary = async () => {
     try {
-      const res = await fetch('http://localhost:5000/route_summary', {
+      const res = await fetch(`${API_BASE_URL}/route_summary`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
