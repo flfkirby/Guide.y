@@ -6,7 +6,7 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 def get_openai_response(user_input, location=None, profile=None):
     system_prompt = (
         "You are a friendly, knowledgeable local city guide. "
-        "Provide unique and personalised suggestions to help a traveller explore and enjoy their current city."
+        "Provide unique and personalised suggestions to help a traveller explore and enjoy their current city, with clear walking directions from each location to the next."
     )
 
     if location:
