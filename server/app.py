@@ -1,5 +1,7 @@
 from flask import Flask, request, jsonify
-from openai_utils import get_openai_response
+from openai_utils import get_openai_response, get_route_summary
+from geocode_utils import geocode_places
+from directions_utils import get_walking_distances
 from dotenv import load_dotenv
 from flask_cors import CORS
 
@@ -14,10 +16,30 @@ def chat():
     location = data.get("location", "")
     profile = data.get("profile", "")
 
-    response = get_openai_response(user_input, location, profile)
-    if not response:
-        response = "No data found for your request."
-    return jsonify({"response": response})
+    places = get_openai_response(user_input, location, profile)
+    if not places:
+        return jsonify({"error": "No places found for your request."}), 200
+    # Always include the user's current location as the first stop
+    geocoded = geocode_places(places, city=location, start_location=location)
+    return jsonify({"places": geocoded})
+
+@app.route("/walking_distances", methods=["POST"])
+def walking_distances():
+    data = request.json
+    places = data.get("places", [])
+    if not places or len(places) < 2:
+        return jsonify({"error": "At least two places required."}), 400
+    result = get_walking_distances(places)
+    return jsonify(result)
+
+@app.route("/route_summary", methods=["POST"])
+def route_summary():
+    data = request.json
+    request_info = data.get("request_info", "")
+    places = data.get("places", [])
+    walking_info = data.get("walking_info", {})
+    summary = get_route_summary(request_info, places, walking_info)
+    return jsonify({"summary": summary})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
