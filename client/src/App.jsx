@@ -114,17 +114,26 @@ function App() {
     }
   };
 
+  // Handle Enter key to go to next step instead of submitting
+  const handleKeyDown = (e, step) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      if (step < 4) nextStep();
+    }
+  };
+
   return (
-    <div className="app">
+    <div className="app" style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center' }}>
       <h1>guide.y</h1>
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={handleSubmit} style={{ width: '100%', maxWidth: 500, margin: '0 auto' }}>
         {step === 1 && (
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <label>Where are you?</label>
             <input
               type="text"
               value={location}
               onChange={(e) => setLocation(e.target.value)}
+              onKeyDown={e => handleKeyDown(e, 1)}
               placeholder="Enter your location"
               style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem', fontSize: '1rem' }}
               required
@@ -133,40 +142,42 @@ function App() {
           </div>
         )}
         {step === 2 && (
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <label>Your preferences</label>
             <input
               type="text"
               value={profile}
               onChange={(e) => setProfile(e.target.value)}
+              onKeyDown={e => handleKeyDown(e, 2)}
               placeholder="e.g. loves local, cheap eats"
               style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem', fontSize: '1rem' }}
               required
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
               <button type="button" onClick={prevStep}>Back</button>
               <button type="button" onClick={nextStep}>Next</button>
             </div>
           </div>
         )}
         {step === 3 && (
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <label>Any interests or must-sees?</label>
             <input
               type="text"
               value={interests}
               onChange={(e) => setInterests(e.target.value)}
+              onKeyDown={e => handleKeyDown(e, 3)}
               placeholder="e.g. art, history, coffee shops"
               style={{ width: '100%', marginBottom: '1rem', padding: '0.5rem', fontSize: '1rem' }}
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
               <button type="button" onClick={prevStep}>Back</button>
               <button type="button" onClick={nextStep}>Next</button>
             </div>
           </div>
         )}
         {step === 4 && (
-          <div>
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <label>What do you want to ask your guide?</label>
             <textarea
               value={message}
@@ -175,7 +186,7 @@ function App() {
               style={{ width: '100%', marginBottom: '1rem', padding: '1rem', fontSize: '1rem' }}
               required
             />
-            <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
               <button type="button" onClick={prevStep}>Back</button>
               <button type="submit" disabled={loading}>
                 {loading ? 'Thinking...' : 'Find My Route'}
@@ -184,7 +195,7 @@ function App() {
           </div>
         )}
       </form>
-      <div className="response">
+      <div className={`response${validPlaces.length > 0 ? ' has-places' : ''}`}>
         {response && <p style={{ color: 'black' }}>{response}</p>}
         {validPlaces.length > 0 && (
           <div>
@@ -244,7 +255,7 @@ function App() {
                   Summarise My Day
                 </button>
                 {summary && (
-                  <div style={{ marginTop: '1rem', background: '#f9f9f9', padding: '1rem', borderRadius: '8px' }}>
+                  <div className="day-summary">
                     <h3>Day Summary</h3>
                     <p>{summary}</p>
                   </div>
