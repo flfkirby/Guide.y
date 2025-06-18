@@ -1,0 +1,76 @@
+name: Build and deploy Python app to Azure Web App - my-flask-backend
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Python version
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+
+      - name: Create and start virtual environment
+        run: |
+          cd server
+          python -m venv venv
+          source venv/bin/activate
+
+      - name: Install dependencies
+        run: |
+          cd server
+          pip install -r requirements.txt
+
+      # Optional: Add step to run tests here
+
+      - name: Zip artifact for deployment
+        run: |
+          cd server
+          zip -r ../release.zip . -x \"venv/*\" \"__pycache__/*\" \"*.pyc\"
+
+      - name: Upload artifact for deployment jobs
+        uses: actions/upload-artifact@v4
+        with:
+          name: python-app
+          path: |
+            release.zip
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: python-app
+
+      - name: Unzip artifact for deployment
+        run: unzip release.zip
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_934F4A7B48774474BA434D07E70CBE48 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_6DEA97E1A3024DBA8D3ED429F79B4F89 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F1FF9ACB7CA244F8AD8C555D308F608E }}
+
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v3
+        id: deploy-to-webapp
+        with:
+          app-name: 'my-flask-backend'
+          slot-name: 'Production'
